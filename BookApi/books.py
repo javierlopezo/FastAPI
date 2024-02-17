@@ -12,13 +12,15 @@ class Book:
     author: str
     description: str
     rating: int
+    publish_date: int
 
-    def __init__(self, id, title, author, description, rating):
+    def __init__(self, id, title, author, description, rating, publish_date):
         self.id = id
         self.title = title
         self.author = author
         self.description = description
         self.rating = rating
+        self.publish_date = publish_date
 
 
 class BookRequest(BaseModel):
@@ -27,6 +29,7 @@ class BookRequest(BaseModel):
     author: str = Field(min_length=1)
     description: str = Field(min_length=1, max_length=100)
     rating: int = Field(gt=-1, lt=6)
+    publish_date: int = Field(gt=999, lt=9999)
 
     class Config:
         json_schema_extra ={
@@ -34,17 +37,18 @@ class BookRequest(BaseModel):
             'title': 'A new book',
             'author':'codingwithroby',
             'description': 'A new description of a book',
-            'rating': 5
+            'rating': 5,
+            'publish_date': 1999
             }
         }
 
 BOOKS = [
-      Book(1, 'Computer Science Pro', 'codingwithroby',  'A very nice book!', 5),
-      Book(2, 'Be Fast with FastAPI', 'codingwithroby',  'A great book!', 5),
-      Book(3, 'Master Endpoint', 'codingwithroby',  'An awesome book!', 5),
-      Book(4, 'HP1', 'Author 1',  'Book description', 2),
-      Book(5, 'HP2', 'Author 2',  'Book description', 3),
-      Book(6, 'HP3', 'Author 3',  'Book description', 1)
+      Book(1, 'Computer Science Pro', 'codingwithroby',  'A very nice book!', 5, 2000),
+      Book(2, 'Be Fast with FastAPI', 'codingwithroby',  'A great book!', 5, 2001),
+      Book(3, 'Master Endpoint', 'codingwithroby',  'An awesome book!', 5, 2002),
+      Book(4, 'HP1', 'Author 1',  'Book description', 2, 2000),
+      Book(5, 'HP2', 'Author 2',  'Book description', 3, 2001),
+      Book(6, 'HP3', 'Author 3',  'Book description', 1, 2002)
 
 ]
 
@@ -61,11 +65,20 @@ async def read_book(book_id: int):
             return book
 
 
-@app.get("/books/")
+@app.get("/books/rating/")
 async def read_book_by_rating(book_rating: int):
     books_to_return = []
     for book in BOOKS:
         if book.rating == book_rating:
+            books_to_return.append(book)
+    return books_to_return
+
+
+@app.get("/books/publish_date/")
+async def read_book_by_rating(publish_date: int):
+    books_to_return = []
+    for book in BOOKS:
+        if book.publish_date == publish_date:
             books_to_return.append(book)
     return books_to_return
 
